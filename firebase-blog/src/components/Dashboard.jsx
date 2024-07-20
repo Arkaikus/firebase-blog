@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, addDoc } from 'firebase/firestore/lite';
+import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore/lite';
 import { getAuth, signOut } from 'firebase/auth';
 import PostTable from './PostTable';
-import EditModal from './EditModal';
+import SavePost from './SavePost';
+
 
 function Dashboard({ db, user }) {
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
-    const [newPostTitle, setNewPostTitle] = useState('');
+    const [newPost, setNewPost] = useState(null);
     const [editingPost, setEditingPost] = useState(null);
     const navigate = useNavigate();
 
@@ -21,13 +22,20 @@ function Dashboard({ db, user }) {
         setPosts(postsData);
     };
 
-    const addPost = async () => {
-        if (newPostTitle.trim() !== '') {
-            const newPost = { title: newPostTitle, userId: user.uid };
-            await addDoc(collection(db, 'posts'), newPost);
-            setNewPostTitle('');
-            fetchPosts();
+    const savePost = async (post) => {
+        if (post.title.trim() !== '') {
+            const postData = { userId: user.uid, title: post.title, body: post.body };
+            if (post?.id) {
+                await updateDoc(doc(db, 'posts', post.id), postData);
+            } else {
+                await addDoc(collection(db, 'posts'), postData);
+            }
         }
+    };
+
+    const deletePost = async (post) => {
+        await deleteDoc(doc(db, 'posts', post.id));
+        fetchPosts();
     };
 
     const handleSignOut = async () => {
@@ -43,29 +51,25 @@ function Dashboard({ db, user }) {
         <div>
             <div className="flex justify-between">
                 <h1>Welcome, {user.displayName}</h1>
+                <button className='ms-auto mx-2' onClick={() => setNewPost(true)}>+ Add New Post</button>
                 <button onClick={handleSignOut}>Sign Out</button>
             </div>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Enter post title"
-                    value={newPostTitle}
-                    onChange={(e) => setNewPostTitle(e.target.value)}
+            {newPost && (
+                <SavePost
+                    onSave={savePost}
+                    onClose={() => { setNewPost(null) }}
                 />
-                <button onClick={addPost}>Add Post</button>
-            </div>
+            )}
             <PostTable
                 posts={posts}
                 onEdit={setEditingPost}
-                onDelete={fetchPosts}
-                db={db}
+                onDelete={deletePost}
             />
             {editingPost && (
-                <EditModal
+                <SavePost
                     post={editingPost}
-                    onClose={() => setEditingPost(null)}
-                    onSave={fetchPosts}
-                    db={db}
+                    onSave={savePost}
+                    onClose={() => { setEditingPost(null) }}
                 />
             )}
         </div>
