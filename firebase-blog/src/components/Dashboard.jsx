@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, addDoc } from 'firebase/firestore/lite';
-import { signOut } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import PostTable from './PostTable';
 import EditModal from './EditModal';
 
-function Dashboard({ auth, db, user }) {
+function Dashboard({ db, user }) {
+    const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [newPostTitle, setNewPostTitle] = useState('');
     const [editingPost, setEditingPost] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
+    useEffect(() => { fetchPosts() });
 
     const fetchPosts = async () => {
         const postsCollection = collection(db, 'posts');

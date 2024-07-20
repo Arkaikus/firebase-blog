@@ -6,7 +6,7 @@ import { getFirestore } from 'firebase/firestore/lite';
 
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import './App.css';
+import './styles/App.css';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -44,7 +44,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/dashboard" element={user ? <Dashboard user={user} auth={auth} db={db} /> : <Navigate to="/login" />} />
+          <Route path="/dashboard" element={user ? <Dashboard user={user} db={db} /> : <Navigate to="/login" />} />
           <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
         </Routes>
       </div>
