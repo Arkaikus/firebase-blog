@@ -41,9 +41,10 @@ function Dashboard({ db, user }) {
 
     return (
         <div>
-            <h1>Dashboard</h1>
-            <p>Welcome, {user.displayName}</p>
-            <button onClick={handleSignOut}>Sign Out</button>
+            <div className="flex justify-between">
+                <h1>Welcome, {user.displayName}</h1>
+                <button onClick={handleSignOut}>Sign Out</button>
+            </div>
             <div>
                 <input
                     type="text"
