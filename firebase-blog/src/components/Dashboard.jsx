@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore/lite';
+import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc, where } from 'firebase/firestore/lite';
 import { getAuth, signOut } from 'firebase/auth';
 import PostTable from './Posts/PostTable';
 import PostSave from './Posts/PostSave';
@@ -23,9 +23,10 @@ class Dashboard extends React.Component {
     }
 
     fetchPosts = () => {
-        const { db } = this.props;
+        const { db, user } = this.props;
         const postsCollection = collection(db, 'posts');
-        getDocs(postsCollection).then((postsSnapshot) => {
+        const query = query(postsCollection, where('userId', '==', user.uid));
+        getDocs(query).then((postsSnapshot) => {
             const postsData = postsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
             this.setState({ posts: postsData });
         });
