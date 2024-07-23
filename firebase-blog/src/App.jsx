@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -23,10 +23,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 function App() {
-  const [user, setUser] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -43,8 +43,10 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/dashboard" element={user ? <Dashboard user={user} db={db} /> : <Navigate to="/login" />} />
+          {user && <Route path="/login" element={<Navigate to="/dashboard" />} />}
+          {user && <Route path="/dashboard/*" element={<Dashboard user={user} db={db} />} />}
+          {!user && <Route path="/login" element={<Login />} />}
+          {!user && <Route path="/dashboard/*" element={<Navigate to="/login" />} />}
           <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
         </Routes>
       </div>

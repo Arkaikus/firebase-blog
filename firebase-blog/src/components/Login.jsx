@@ -1,16 +1,16 @@
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
-function Login() {
-    const handleSignIn = async () => {
-        const auth = getAuth();
-        const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+async function handleSignIn() {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+function Login() {
     return (
         <div>
             <h1>Welcome to Posts App</h1>

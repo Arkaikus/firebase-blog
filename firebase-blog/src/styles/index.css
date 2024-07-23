@@ -29,14 +29,18 @@
     @apply text-6xl leading-tight;
   }
   
-  button {
-    @apply rounded-lg border border-transparent px-6 py-2 text-base font-medium cursor-pointer transition-colors;
+  a.button {
+    @apply flex align-middle items-center text-neutral-200 !important;
+  }
+
+  .button, button {
+    @apply rounded-lg border border-transparent px-6 py-2 mx-2 text-base font-medium cursor-pointer transition-colors;
     @apply bg-neutral-800;
   }
-  button:hover {
+  .button:hover, button:hover {
     @apply border-indigo-500;
   }
-  button:focus, button:focus-visible {
+  .button:focus, .button:focus-visible,button:focus, button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
 }

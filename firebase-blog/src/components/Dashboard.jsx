@@ -1,28 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc } from 'firebase/firestore/lite';
 import { getAuth, signOut } from 'firebase/auth';
-import PostTable from './PostTable';
-import SavePost from './SavePost';
+import PostTable from './Posts/PostTable';
+import PostSave from './Posts/PostSave';
 
 
-function Dashboard({ db, user }) {
-    const auth = getAuth();
-    const [posts, setPosts] = useState([]);
-    const [newPost, setNewPost] = useState(null);
-    const [editingPost, setEditingPost] = useState(null);
-    const navigate = useNavigate();
+class Dashboard extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            posts: [],
+            newPost: false,
+            editingPost: null,
+            logout: false,
+        };
+        this.auth = getAuth();
+    }
 
-    useEffect(() => { fetchPosts() });
+    componentDidMount() {
+        this.fetchPosts();
+    }
 
-    const fetchPosts = async () => {
+    fetchPosts = () => {
+        const { db } = this.props;
         const postsCollection = collection(db, 'posts');
-        const postsSnapshot = await getDocs(postsCollection);
-        const postsData = postsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setPosts(postsData);
+        getDocs(postsCollection).then((postsSnapshot) => {
+            const postsData = postsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            this.setState({ posts: postsData });
+        });
     };
 
-    const savePost = async (post) => {
+    savePost = async (post) => {
+        const { db, user } = this.props;
         if (post.title.trim() !== '') {
             const postData = { userId: user.uid, title: post.title, body: post.body };
             if (post?.id) {
@@ -30,50 +40,62 @@ function Dashboard({ db, user }) {
             } else {
                 await addDoc(collection(db, 'posts'), postData);
             }
+            this.fetchPosts();
+            this.setState({ newPost: false, editingPost: null });
         }
     };
 
-    const deletePost = async (post) => {
+    deletePost = async (post) => {
+        const { db } = this.props;
         await deleteDoc(doc(db, 'posts', post.id));
-        fetchPosts();
+        this.fetchPosts();
     };
 
-    const handleSignOut = async () => {
-        try {
-            await signOut(auth);
-            navigate('/login');
-        } catch (error) {
-            console.log(error);
+    handleSignOut = () => {
+        signOut(this.auth).then(() => this.setState({ logout: true }));
+    };
+
+    render() {
+        const { user } = this.props;
+        const { posts, newPost, editingPost } = this.state;
+
+        if (this.state.logout) {
+            return <Navigate to="/login" />;
         }
-    };
 
-    return (
-        <div>
-            <div className="flex justify-between">
-                <h1>Welcome, {user.displayName}</h1>
-                <button className='ms-auto mx-2' onClick={() => setNewPost(true)}>+ Add New Post</button>
-                <button onClick={handleSignOut}>Sign Out</button>
+        return (
+            <div className="flex flex-col justify-center">
+                <div className="flex justify-between">
+                    <h1>Welcome, {user.displayName}</h1>
+                    <button className="ms-auto" onClick={() => this.setState({ newPost: true })}>+ Add New Post</button>
+                    <button onClick={this.handleSignOut}>Sign Out</button>
+                </div>
+                <hr className="my-5" />
+                {newPost &&
+                    <PostSave
+                        post={null}
+                        onSave={this.savePost}
+                        onCancel={() => this.setState({ newPost: false })}
+                    />
+                }
+                {editingPost &&
+                    <PostSave
+                        post={editingPost}
+                        onSave={this.savePost}
+                        onCancel={() => this.setState({ editingPost: null })}
+                    />
+                }
+                {
+                    !(newPost || editingPost) &&
+                    <PostTable
+                        posts={posts}
+                        onEdit={(post) => this.setState({ editingPost: post })}
+                        onDelete={this.deletePost}
+                    />
+                }
             </div>
-            {newPost && (
-                <SavePost
-                    onSave={savePost}
-                    onClose={() => { setNewPost(null) }}
-                />
-            )}
-            <PostTable
-                posts={posts}
-                onEdit={setEditingPost}
-                onDelete={deletePost}
-            />
-            {editingPost && (
-                <SavePost
-                    post={editingPost}
-                    onSave={savePost}
-                    onClose={() => { setEditingPost(null) }}
-                />
-            )}
-        </div>
-    );
+        );
+    }
 }
 
 export default Dashboard;
