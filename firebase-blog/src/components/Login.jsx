@@ -12,7 +12,7 @@ async function handleSignIn() {
 
 function Login() {
     return (
-        <div>
+        <div className="text-center">
             <h1>Welcome to Posts App</h1>
             <button onClick={handleSignIn}>Sign In with Google</button>
         </div>

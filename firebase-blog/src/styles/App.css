@@ -4,7 +4,11 @@
 
 @layer components {
   #root {
-    @apply w-screen p-8;
+    @apply w-screen p-8 flex;
+  }
+
+  .App{
+    @apply align-middle w-full;
   }
 
   .logo {
