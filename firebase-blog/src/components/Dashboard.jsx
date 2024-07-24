@@ -66,8 +66,9 @@ class Dashboard extends React.Component {
 
         return (
             <div className="flex flex-col h-full">
-                <div className="flex justify-between">
-                    <h1>Welcome, {user.displayName}</h1>
+                <div className="flex flex-wrap justify-between align-middle">
+                    <img src={user.photoURL} className="w-8 h-8 mx-2 ml-2 rounded-full" />
+                    <div className="text-2xl"> Welcome, {user.displayName}</div>
                     <button className="ms-auto" onClick={() => this.setState({ newPost: true })}>+ Add New Post</button>
                     <button onClick={this.handleSignOut}>Sign Out</button>
                 </div>
