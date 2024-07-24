@@ -65,7 +65,7 @@ class Dashboard extends React.Component {
         }
 
         return (
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col h-full">
                 <div className="flex justify-between">
                     <h1>Welcome, {user.displayName}</h1>
                     <button className="ms-auto" onClick={() => this.setState({ newPost: true })}>+ Add New Post</button>

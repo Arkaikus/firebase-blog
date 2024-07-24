@@ -12,6 +12,7 @@
     "deploy": "bunx -bun gh-pages -d dist -b gh-pages"
   },
   "dependencies": {
+    "@uiw/react-md-editor": "^4.0.4",
     "autoprefixer": "^10.4.19",
     "firebase": "^10.12.4",
     "firestore": "^1.1.6",
@@ -20,7 +21,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
-    "tailwindcss": "^3.4.6"
+    "tailwindcss": "^3.4.6",
+    "vite-plugin-minify": "^1.5.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
