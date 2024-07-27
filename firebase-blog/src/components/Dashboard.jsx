@@ -1,103 +1,72 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc, query, where } from 'firebase/firestore/lite';
-import { getAuth, signOut } from 'firebase/auth';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, Route, Routes } from 'react-router-dom';
 import PostTable from './Posts/PostTable';
 import PostSave from './Posts/PostSave';
+import Header from './Header';
+import PostManager from './Posts/PostManager';
 
 
-class Dashboard extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            posts: [],
-            newPost: false,
-            editingPost: null,
-            logout: false,
-        };
-        this.auth = getAuth();
+function Dashboard(props) {
+    const { user, db } = props;
+    const [posts, setPosts] = useState([]);
+    const [editingPost, setEditingPost] = useState(null);
+    const postManager = useMemo(() => new PostManager(db, user), [db, user]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        postManager.fetchPosts().then((fetchedPosts) => setPosts(fetchedPosts))
+    }, [postManager]);
+
+
+    const handleSave = (post) => {
+        postManager.savePost(post)
+            .then(() => postManager.fetchPosts())
+            .then(fetchedPosts => {
+                setPosts(fetchedPosts);
+                setEditingPost(null);
+                navigate("/dashboard");
+            });
     }
 
-    componentDidMount() {
-        this.fetchPosts();
-    }
-
-    fetchPosts = () => {
-        const { db, user } = this.props;
-        const postsCollection = collection(db, 'posts');
-        const q = query(postsCollection, where('userId', '==', user.uid));
-        getDocs(q).then((response) => {
-            const postsData = response.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-            this.setState({ posts: postsData });
-        });
-    };
-
-    savePost = async (post) => {
-        const { db, user } = this.props;
-        if (post.title.trim() !== '') {
-            const postData = { userId: user.uid, title: post.title, body: post.body };
-            if (post?.id) {
-                await updateDoc(doc(db, 'posts', post.id), postData);
-            } else {
-                await addDoc(collection(db, 'posts'), postData);
-            }
-            this.fetchPosts();
-            this.setState({ newPost: false, editingPost: null });
-        }
-    };
-
-    deletePost = async (post) => {
-        const { db } = this.props;
-        await deleteDoc(doc(db, 'posts', post.id));
-        this.fetchPosts();
-    };
-
-    handleSignOut = () => {
-        signOut(this.auth).then(() => this.setState({ logout: true }));
-    };
-
-    render() {
-        const { user } = this.props;
-        const { posts, newPost, editingPost } = this.state;
-
-        if (this.state.logout) {
-            return <Navigate to="/login" />;
-        }
-
-        return (
-            <div className="flex flex-col h-full">
-                <div className="flex flex-wrap justify-between align-middle">
-                    <img src={user.photoURL} className="w-8 h-8 mx-2 ml-2 rounded-full" />
-                    <div className="text-2xl"> Welcome, {user.displayName}</div>
-                    <button className="ms-auto" onClick={() => this.setState({ newPost: true })}>+ Add New Post</button>
-                    <button onClick={this.handleSignOut}>Sign Out</button>
-                </div>
-                <hr className="my-5" />
-                {newPost &&
+    return (
+        <div className="flex flex-col h-full">
+            <Header user={user}>
+                <button className="ms-auto" onClick={() => navigate("/dashboard/new")}>+ Add New Post</button>
+            </Header>
+            <hr className="my-5" />
+            <Routes>
+                <Route path="/new" element={
                     <PostSave
                         post={null}
-                        onSave={this.savePost}
-                        onCancel={() => this.setState({ newPost: false })}
+                        onSave={handleSave}
+                        onCancel={() => navigate("/dashboard")}
                     />
-                }
-                {editingPost &&
+                } />
+                <Route path="/edit/:id" element={
                     <PostSave
                         post={editingPost}
-                        onSave={this.savePost}
-                        onCancel={() => this.setState({ editingPost: null })}
+                        onSave={handleSave}
+                        onCancel={() => { setEditingPost(null); navigate("/dashboard") }}
                     />
-                }
-                {
-                    !(newPost || editingPost) &&
+                } />
+                <Route path="" element={
                     <PostTable
                         posts={posts}
-                        onEdit={(post) => this.setState({ editingPost: post })}
-                        onDelete={this.deletePost}
+                        onEdit={(post) => {
+                            setEditingPost(post);
+                            navigate(`/dashboard/edit/${post.id}`);
+                        }}
+                        onDelete={(post) => {
+                            postManager.deletePost(post)
+                                .then(() => postManager.fetchPosts())
+                                .then((fetchedPosts) => setPosts(fetchedPosts));
+                        }}
                     />
-                }
-            </div>
-        );
-    }
+                } />
+            </Routes>
+        </div>
+    );
 }
+
 
 export default Dashboard;
