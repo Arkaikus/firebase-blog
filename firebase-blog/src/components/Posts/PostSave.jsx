@@ -37,6 +37,25 @@ function Generating() {
     )
 }
 
+function AIAvailable({ available }) {
+    if (available) {
+
+        return (
+            <div className="flex items-center">
+                <div className="w-4 h-4 mr-2 bg-green-500 rounded-full"></div>
+                Ollama Available
+            </div>
+        )
+    } else {
+        return (
+            <div className="flex items-center">
+                <div className="w-4 h-4 mr-2 bg-red-500 rounded-full"></div>
+                Ollama Unavailable
+            </div>
+        )
+    }
+}
+
 
 function PostSave({ post, onSave, onCancel }) {
     const [postTitle, setPostTitle] = useState(post?.title || '');
@@ -95,7 +114,7 @@ function PostSave({ post, onSave, onCancel }) {
     }
 
     return (
-        <div className='flex flex-col w-10/12 p-8 mx-auto mt-4 border border-indigo-300 h-5/6 rounded-xl' >
+        <div className='flex flex-col w-10/12 p-8 mx-auto mt-4 border border-indigo-300 h-fit rounded-xl' >
             <h2 className="p-2">Save a Post</h2>
             <input
                 type="text"
@@ -107,7 +126,7 @@ function PostSave({ post, onSave, onCancel }) {
             <MDEditor
                 value={postBody}
                 onChange={setPostBody}
-                height="83%"
+                height="50dvh"
                 textareaProps={{
                     placeholder: 'Please enter Markdown text',
                 }}
@@ -117,6 +136,7 @@ function PostSave({ post, onSave, onCancel }) {
                 {(ollamaAvailable && !generating) &&
                     <button onClick={handleGenerate}>Generate</button>
                 }
+                <AIAvailable className="mx-2" available={ollamaAvailable} />
                 <button className="ms-auto" onClick={handleSave}>Save</button>
                 <button onClick={handleCancel}>Cancel</button>
             </div>
