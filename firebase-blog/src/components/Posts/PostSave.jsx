@@ -74,7 +74,7 @@ function PostSave({ post, onSave, onCancel }) {
                 setOllamaAvailable(response.ok)
             })
             .catch(() => false);
-    }, [ollamaAvailable]);
+    }, []);
 
     const handleSave = () => {
         const postData = { title: postTitle, body: postBody };
