@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore/lite';
-import MDEditor from '@uiw/react-md-editor';
+import PostRead from './PostRead';
 
 function PostList({ username, posts }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -27,25 +27,6 @@ function PostList({ username, posts }) {
                 </Link>
             ))}
         </>
-    );
-}
-
-function PostRead({ posts }) {
-    const { postId } = useParams();
-    const post = posts.find((post) => post.id === postId);
-    const navigate = useNavigate();
-
-    if (!post) {
-        navigate('/404');
-        return;
-    }
-
-    return (
-        <div>
-            <MDEditor.Markdown source={post.title} style={{ background: 'unset' }} />
-            <br />
-            <MDEditor.Markdown source={post.body} style={{ background: 'unset' }} />
-        </div>
     );
 }
 
@@ -79,7 +60,7 @@ const ReadOnly = ({ db }) => {
 
         fetchPosts();
     }, [db, username, navigate]);
-    
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -97,7 +78,7 @@ const ReadOnly = ({ db }) => {
             <hr className="my-5" />
             <Routes>
                 <Route path="/" element={<PostList username={username} posts={posts} />} />
-                <Route path="/:postId" element={<PostRead posts={posts} />} />
+                <Route path="/:postId" element={<PostRead db={db} />} />
             </Routes>
         </div>
     );
