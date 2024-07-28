@@ -41,15 +41,25 @@ function App() {
     return <div>Loading...</div>;
   }
 
+  if (!user) {
+    return (
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </div>
+      </Router>
+    );
+  }
+
   return (
     <Router>
       <div className="App">
         <Routes>
-          {user && <Route path="/login" element={<Navigate to="/dashboard" />} />}
-          {user && <Route path="/dashboard/*" element={<Dashboard user={user} db={db} />} />}
-          {!user && <Route path="/login" element={<Login />} />}
-          {!user && <Route path="/dashboard/*" element={<Navigate to="/login" />} />}
           <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+          <Route path="/dashboard/*" element={<Dashboard user={user} db={db} />} />
           <Route path="/:username/posts/*" element={<ReadOnly db={db} />} />
           <Route path="/404" element={<NotFound />} />
         </Routes>
