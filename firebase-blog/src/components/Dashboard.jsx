@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Route, Routes } from 'react-router-dom';
+import { FaUser } from "react-icons/fa";
 import PostTable from './Posts/PostTable';
 import PostSave from './Posts/PostSave';
 import Header from './Header';
 import PostManager from './Posts/PostManager';
-
+import Profile from './Profile/Profile';
 
 function Dashboard(props) {
     const { user, db } = props;
@@ -32,6 +33,9 @@ function Dashboard(props) {
         <div className="flex flex-col h-full">
             <Header user={user}>
                 <button className="ms-auto" onClick={() => navigate("/dashboard/new")}>+ Add New Post</button>
+                <button className="flex items-center w-fit" onClick={() => navigate("profile")}>
+                    <FaUser className="me-1" /> Profile
+                </button>
             </Header>
             <hr className="my-5" />
             <Routes>
@@ -63,6 +67,8 @@ function Dashboard(props) {
                         }}
                     />
                 } />
+
+                <Route path="profile" element={<Profile user={user} db={db} />} />
             </Routes>
         </div>
     );
