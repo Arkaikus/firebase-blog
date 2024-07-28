@@ -6,6 +6,8 @@ import { getFirestore } from 'firebase/firestore/lite';
 
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import ReadOnly from './components/Posts/ReadOnly';
+import NotFound from './components/404';
 import './styles/App.css';
 
 // Initialize Firebase
@@ -48,6 +50,8 @@ function App() {
           {!user && <Route path="/login" element={<Login />} />}
           {!user && <Route path="/dashboard/*" element={<Navigate to="/login" />} />}
           <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+          <Route path="/:username/posts/*" element={<ReadOnly db={db} />} />
+          <Route path="/404" element={<NotFound />} />
         </Routes>
       </div>
     </Router>

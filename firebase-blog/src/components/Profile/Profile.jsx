@@ -71,7 +71,7 @@ function Profile({ user, db }) {
     };
 
     return (
-        <div className='flex flex-col w-10/12 p-8 mx-auto mt-4 border border-indigo-300 h-fit rounded-xl'>
+        <div className='flex flex-col w-6/12 p-8 mx-auto mt-4 border border-indigo-300 h-fit rounded-xl'>
             <h2 className="p-2">Edit Profile</h2>
             <div className='p-2 my-2'>Name: {user?.displayName}</div>
             <div className='p-2 my-2'>Email: {user?.email}</div>
