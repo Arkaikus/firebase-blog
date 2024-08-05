@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
+import { useProfile } from '../Profile/ProfileProvider';
 import MDEditor from '@uiw/react-md-editor';
 
-function prompt(text) {
-    return fetch('http://ollama.local/api/generate', {
+function prompt(url, text) {
+    return fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -57,6 +58,7 @@ function AIAvailable({ available }) {
 
 
 function PostSave({ post, onSave, onCancel }) {
+    const { profile } = useProfile();
     const [postTitle, setPostTitle] = useState(post?.title || '');
     const [postBody, setPostBody] = useState(post?.body || '');
     const [generating, setGenerating] = useState(false);
@@ -67,8 +69,8 @@ function PostSave({ post, onSave, onCancel }) {
     useEffect(() => {
         if (lockRef.current) return;
         lockRef.current = true;
-        console.log("Checking if Ollama is available");
-        fetch("http://ollama.local/", {
+        console.log("Checking if Ollama is available at", profile.ollamaUrl);
+        fetch(profile.ollamaUrl, {
             signal: AbortSignal.timeout(10000),
         })
             .then(response => {
@@ -76,7 +78,8 @@ function PostSave({ post, onSave, onCancel }) {
                 setOllamaAvailable(response.ok)
             })
             .catch(console.log);
-    }, []);
+
+    }, [profile]);
 
     const handleSave = () => {
         const postData = { title: postTitle, body: postBody };
@@ -98,14 +101,14 @@ function PostSave({ post, onSave, onCancel }) {
             return;
         }
 
-        const bodyResponse = await prompt(`Create a short text from the following idea: ${postBody}`);
+        const bodyResponse = await prompt(profile.ollamaUrl, `Create a short text from the following idea: ${postBody}`);
         for await (const response of bodyResponse.body) {
             if (abort) break;
             body += parse_response(response);
             setPostBody(body);
         }
 
-        const titleResponse = await prompt(`Create a title, no explanation, for the following text: ${body}`);
+        const titleResponse = await prompt(profile.ollamaUrl, `Create a title, no explanation, for the following text: ${body}`);
         for await (const response of titleResponse.body) {
             if (abort) break;
             title += parse_response(response);

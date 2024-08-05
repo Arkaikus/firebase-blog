@@ -49,6 +49,8 @@ function ProfileProvider({ db, user, children }) {
         setDoc(docRef, profile);
     }
 
+    if (!profile.username) return <div>Loading...</div>;
+
     return (
         <ProfileContext.Provider value={{ user: user, profile: profile, setProfile, saveProfile }}>
             {children}
