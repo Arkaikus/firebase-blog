@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setDoc, doc, getDoc } from "firebase/firestore/lite";
 
@@ -12,50 +12,42 @@ function randomUsername() {
     return uuid;
 }
 
+async function getProfile(db, user) {
+    const docRef = doc(db, "profiles", user.uid)
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        return snap.data();
+
+    } else {
+        const username = randomUsername();
+        const profileData = {
+            username: username,
+            userId: user.uid,
+            tries: 1,
+            ollamaUrl: 'http://ollama.local',
+        };
+        setDoc(docRef, profileData);
+        return profileData;
+    }
+}
+
 
 function Profile({ user, db }) {
     const [profile, setProfile] = useState({});
-    const [username, setUsername] = useState('');
-    const [usernameEditable, setUsernameEditable] = useState(false);
+    const [userEditable, setUserEditable] = useState(false);
     const navigate = useNavigate();
+    const lockRef = useRef(false);
 
     useEffect(() => {
-        const docRef = doc(db, "profiles", user.uid)
-        getDoc(docRef).then((docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const profileData = docSnapshot.data();
-                setProfile(profileData);
-                setUsername(profileData.username);
-            } else {
-                const username = randomUsername();
-                const profileData = { username: username, userId: user.uid, tries: 1 };
-                setDoc(docRef, profileData);
-                setProfile(profileData);
-                setUsername(username);
-            }
-        });
-    }, [db, user.uid]);
+        if (lockRef.current) return;
+        lockRef.current = true;
+        getProfile(db, user).then(setProfile);
+    }, [db, user]);
 
     const handleSave = () => {
-        if (profile && profile.tries === 1) {
-            const sure = window.confirm("Can only change username once, sure?");
-            if (!sure) {
-                setUsernameEditable(false);
-                return;
-            }
-            const docRef = doc(db, "profiles", user.uid);
-            const profileData = {
-                ...profile,
-                username: username,
-                tries: 0
-            };
-            setDoc(docRef, profileData);
-            setProfile(profileData);
-        } else {
-            alert("You have already changed your username once");
-            setUsername(profile.username);
-        }
-        setUsernameEditable(false);
+        const docRef = doc(db, "profiles", user.uid);
+        setDoc(docRef, profile);
+        setUserEditable(false);
     };
 
     const handleCancel = () => {
@@ -63,11 +55,18 @@ function Profile({ user, db }) {
     };
 
     const handleUsernameChange = (e) => {
-        setUsername(e.target.value);
+        setProfile({ ...profile, username: e.target.value });
     };
 
-    const handleUsernameEdit = () => {
-        setUsernameEditable(true);
+    const handleUserEdit = () => {
+        if (profile.tries === 0) {
+            alert("You have already changed your username once");
+            return;
+        }
+        if (window.confirm("Can only change username once, sure?")) {
+            setProfile({ ...profile, tries: 0 });
+            setUserEditable(true);
+        }
     };
 
     return (
@@ -75,23 +74,29 @@ function Profile({ user, db }) {
             <h2 className="p-2">Edit Profile</h2>
             <div className='p-2 my-2'>Name: {user?.displayName}</div>
             <div className='p-2 my-2'>Email: {user?.email}</div>
-            {usernameEditable ? (
+            {userEditable ? (
                 <input
                     type="text"
                     className='p-2 my-2'
                     placeholder="Username"
-                    value={username}
+                    value={profile.username}
                     onChange={handleUsernameChange}
                 />
             ) : (
-                <div className='p-2 my-2'>Username: {username}</div>
+                <div className="flex flex-row align-middle">
+                    <div className='p-2 my-2'>Username: {profile.username}</div>
+                    <button className="h-10 my-2 ms-auto" onClick={handleUserEdit}>Edit Username</button>
+                </div>
             )}
+            <input
+                type="text"
+                className='p-2 my-2'
+                placeholder="Ollama url"
+                value={profile.ollamaUrl}
+                onChange={(e) => setProfile({ ...profile, ollamaUrl: e.target.value })}
+            />
             <div className="flex mt-5">
-                {usernameEditable ? (
-                    <button className="ms-auto" onClick={handleSave}>Save</button>
-                ) : (
-                    <button className="ms-auto" onClick={handleUsernameEdit}>Edit Username</button>
-                )}
+                <button className="ms-auto" onClick={handleSave}>Save</button>
                 <button onClick={handleCancel}>Cancel</button>
             </div>
         </div>
