@@ -1,52 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { setDoc, doc, getDoc } from "firebase/firestore/lite";
+import { useProfile } from './ProfileProvider';
 
-function randomUsername() {
-    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let uuid = '';
-    for (let i = 0; i < 8; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        uuid += characters[randomIndex];
-    }
-    return uuid;
-}
-
-async function getProfile(db, user) {
-    const docRef = doc(db, "profiles", user.uid)
-    const snap = await getDoc(docRef);
-    if (snap.exists()) {
-        return snap.data();
-
-    } else {
-        const username = randomUsername();
-        const profileData = {
-            username: username,
-            userId: user.uid,
-            tries: 1,
-            ollamaUrl: 'http://ollama.local',
-        };
-        setDoc(docRef, profileData);
-        return profileData;
-    }
-}
-
-
-function Profile({ user, db }) {
-    const [profile, setProfile] = useState({});
+function Profile() {
+    const { user, profile, setProfile, saveProfile } = useProfile();
     const [userEditable, setUserEditable] = useState(false);
     const navigate = useNavigate();
-    const lockRef = useRef(false);
-
-    useEffect(() => {
-        if (lockRef.current) return;
-        lockRef.current = true;
-        getProfile(db, user).then(setProfile);
-    }, [db, user]);
 
     const handleSave = () => {
-        const docRef = doc(db, "profiles", user.uid);
-        setDoc(docRef, profile);
+        saveProfile();
         setUserEditable(false);
     };
 
@@ -92,7 +54,7 @@ function Profile({ user, db }) {
                 type="text"
                 className='p-2 my-2'
                 placeholder="Ollama url"
-                value={profile.ollamaUrl}
+                value={profile?.ollamaUrl || ''}
                 onChange={(e) => setProfile({ ...profile, ollamaUrl: e.target.value })}
             />
             <div className="flex mt-5">

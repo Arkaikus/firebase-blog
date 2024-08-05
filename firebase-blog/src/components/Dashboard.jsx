@@ -6,6 +6,7 @@ import PostSave from './Posts/PostSave';
 import Header from './Header';
 import PostManager from './Posts/PostManager';
 import Profile from './Profile/Profile';
+import { ProfileProvider } from './Profile/ProfileProvider';
 
 function Dashboard(props) {
     const { user, db } = props;
@@ -30,47 +31,49 @@ function Dashboard(props) {
     }
 
     return (
-        <div className="flex flex-col h-full">
-            <Header user={user}>
-                <button className="ms-auto" onClick={() => navigate("/dashboard/new")}>+ Add New Post</button>
-                <button className="flex items-center w-fit" onClick={() => navigate("profile")}>
-                    <FaUser className="me-1" /> Profile
-                </button>
-            </Header>
-            <hr className="my-5" />
-            <Routes>
-                <Route path="/new" element={
-                    <PostSave
-                        post={null}
-                        onSave={handleSave}
-                        onCancel={() => navigate("/dashboard")}
-                    />
-                } />
-                <Route path="/edit/:id" element={
-                    <PostSave
-                        post={editingPost}
-                        onSave={handleSave}
-                        onCancel={() => { setEditingPost(null); navigate("/dashboard") }}
-                    />
-                } />
-                <Route path="" element={
-                    <PostTable
-                        posts={posts}
-                        onEdit={(post) => {
-                            setEditingPost(post);
-                            navigate(`/dashboard/edit/${post.id}`);
-                        }}
-                        onDelete={(post) => {
-                            postManager.deletePost(post)
-                                .then(() => postManager.fetchPosts())
-                                .then((fetchedPosts) => setPosts(fetchedPosts));
-                        }}
-                    />
-                } />
+        <ProfileProvider db={db} user={user}>
+            <div className="flex flex-col h-full">
+                <Header user={user}>
+                    <button className="ms-auto" onClick={() => navigate("/dashboard/new")}>+ Add New Post</button>
+                    <button className="flex items-center w-fit" onClick={() => navigate("profile")}>
+                        <FaUser className="me-1" /> Profile
+                    </button>
+                </Header>
+                <hr className="my-5" />
+                <Routes>
+                    <Route path="/new" element={
+                        <PostSave
+                            post={null}
+                            onSave={handleSave}
+                            onCancel={() => navigate("/dashboard")}
+                        />
+                    } />
+                    <Route path="/edit/:id" element={
+                        <PostSave
+                            post={editingPost}
+                            onSave={handleSave}
+                            onCancel={() => { setEditingPost(null); navigate("/dashboard") }}
+                        />
+                    } />
+                    <Route path="" element={
+                        <PostTable
+                            posts={posts}
+                            onEdit={(post) => {
+                                setEditingPost(post);
+                                navigate(`/dashboard/edit/${post.id}`);
+                            }}
+                            onDelete={(post) => {
+                                postManager.deletePost(post)
+                                    .then(() => postManager.fetchPosts())
+                                    .then((fetchedPosts) => setPosts(fetchedPosts));
+                            }}
+                        />
+                    } />
 
-                <Route path="profile" element={<Profile user={user} db={db} />} />
-            </Routes>
-        </div>
+                    <Route path="profile" element={<Profile />} />
+                </Routes>
+            </div>
+        </ProfileProvider>
     );
 }
 
