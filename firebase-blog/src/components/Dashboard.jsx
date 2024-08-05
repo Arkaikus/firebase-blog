@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Route, Routes } from 'react-router-dom';
-import { FaUser } from "react-icons/fa";
 import PostTable from './Posts/PostTable';
 import PostSave from './Posts/PostSave';
 import Header from './Header';
@@ -33,12 +32,7 @@ function Dashboard(props) {
     return (
         <ProfileProvider db={db} user={user}>
             <div className="flex flex-col h-full">
-                <Header user={user}>
-                    <button className="ms-auto" onClick={() => navigate("/dashboard/new")}>+ Add New Post</button>
-                    <button className="flex items-center w-fit" onClick={() => navigate("profile")}>
-                        <FaUser className="me-1" /> Profile
-                    </button>
-                </Header>
+                <Header />
                 <hr className="my-5" />
                 <Routes>
                     <Route path="/new" element={
