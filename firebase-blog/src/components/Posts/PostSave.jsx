@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 
 function prompt(text) {
-    return fetch('http://127.0.0.1:11434/api/generate', {
+    return fetch('http://ollama.local/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -12,7 +12,6 @@ function prompt(text) {
         })
     })
 }
-
 
 function parse_response(response) {
     try {
@@ -63,17 +62,20 @@ function PostSave({ post, onSave, onCancel }) {
     const [generating, setGenerating] = useState(false);
     const [abort, setAbort] = useState(false);
     const [ollamaAvailable, setOllamaAvailable] = useState(false);
+    const lockRef = useRef(false); // Initialize the lock
 
     useEffect(() => {
+        if (lockRef.current) return;
+        lockRef.current = true;
         console.log("Checking if Ollama is available");
-        fetch("http://127.0.0.1:11434/", {
-            signal: AbortSignal.timeout(100),
+        fetch("http://ollama.local/", {
+            signal: AbortSignal.timeout(10000),
         })
             .then(response => {
                 console.log("Response", response);
                 setOllamaAvailable(response.ok)
             })
-            .catch(() => false);
+            .catch(console.log);
     }, []);
 
     const handleSave = () => {

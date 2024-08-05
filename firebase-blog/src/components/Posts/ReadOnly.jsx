@@ -1,34 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore/lite';
 import PostRead from './PostRead';
-
-function PostList({ username, posts }) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filteredPosts, setFilteredPosts] = useState(posts);
-
-    useEffect(() => {
-        const filtered = posts.filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()));
-        setFilteredPosts(filtered);
-    }, [posts, searchTerm]);
-
-    return (
-        <>
-            <input
-                className="w-full p-2 mb-4 border border-indigo-500"
-                type="text"
-                placeholder="Search posts"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {filteredPosts.map((post) => (
-                <Link to={`/${username}/posts/${post.id}`} key={post.id}>
-                    <h3>{post.title}</h3>
-                </Link>
-            ))}
-        </>
-    );
-}
+import PostList from './PostList';
 
 const ReadOnly = ({ db }) => {
     const { username } = useParams(); // Retrieve the username from the path parameter
@@ -36,7 +10,10 @@ const ReadOnly = ({ db }) => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const lockRef = useRef(false);
     useEffect(() => {
+        if (lockRef.current) return;
+        lockRef.current = true;
         const fetchPosts = async () => {
             try {
                 setLoading(true);
@@ -49,7 +26,6 @@ const ReadOnly = ({ db }) => {
                 const profile = profileSnapshot.docs[0].data();
                 const q = query(collection(db, 'posts'), where('userId', '==', profile.userId));
                 const snapshot = await getDocs(q);
-
                 const fetchedPosts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
                 setPosts(fetchedPosts);
                 setLoading(false);
