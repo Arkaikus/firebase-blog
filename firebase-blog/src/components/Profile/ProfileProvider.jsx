@@ -32,8 +32,9 @@ async function getProfile(db, user) {
     }
 }
 
+const useProfile = () => useContext(ProfileContext);
 
-export const ProfileProvider = ({ db, user, children }) => {
+function ProfileProvider({ db, user, children }) {
     const [profile, setProfile] = useState({});
     const lockRef = useRef(false);
 
@@ -53,6 +54,6 @@ export const ProfileProvider = ({ db, user, children }) => {
             {children}
         </ProfileContext.Provider>
     );
-};
+}
 
-export const useProfile = () => useContext(ProfileContext);
+export { ProfileProvider, useProfile };
