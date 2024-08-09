@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useProfile } from '../Profile/ProfileProvider';
+import { useSession } from '../../providers/SessionProvider';
 import MDEditor from '@uiw/react-md-editor';
 
 function prompt(url, text) {
@@ -58,7 +58,7 @@ function AIAvailable({ available }) {
 
 
 function PostSave({ post, onSave, onCancel }) {
-    const { profile } = useProfile();
+    const { profile } = useSession();
     const [postTitle, setPostTitle] = useState(post?.title || '');
     const [postBody, setPostBody] = useState(post?.body || '');
     const [generating, setGenerating] = useState(false);

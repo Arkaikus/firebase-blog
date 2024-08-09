@@ -1,10 +1,10 @@
 import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from './Profile/ProfileProvider';
+import { useSession } from '../providers/SessionProvider';
 import { FaUser } from "react-icons/fa";
 
 function Header() {
-    const { user, profile } = useProfile();
+    const { user, profile } = useSession();
     const auth = getAuth();
     const navigate = useNavigate();
     const handleSignOut = () => {

@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore/lite';
 
+import { SessionProvider } from './providers/SessionProvider';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import ReadOnly from './components/Posts/ReadOnly';
@@ -55,16 +56,18 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-          <Route path="/dashboard/*" element={<Dashboard user={user} db={db} />} />
-          <Route path="/:username/posts/*" element={<ReadOnly db={db} />} />
-          <Route path="/404" element={<NotFound />} />
-        </Routes>
-      </div>
-    </Router>
+    <SessionProvider db={db} user={user}>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route path="/:username/posts/*" element={<ReadOnly />} />
+            <Route path="/404" element={<NotFound />} />
+          </Routes>
+        </div>
+      </Router>
+    </SessionProvider>
   );
 }
 

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { setDoc, doc, getDoc } from "firebase/firestore/lite";
 
-const ProfileContext = createContext();
+const SessionContext = createContext();
 
 function randomUsername() {
     const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -32,9 +32,9 @@ async function getProfile(db, user) {
     }
 }
 
-const useProfile = () => useContext(ProfileContext);
+const useSession = () => useContext(SessionContext);
 
-function ProfileProvider({ db, user, children }) {
+function SessionProvider({ db, user, children }) {
     const [profile, setProfile] = useState({});
     const lockRef = useRef(false);
 
@@ -52,10 +52,10 @@ function ProfileProvider({ db, user, children }) {
     if (!profile.username) return <div>Loading...</div>;
 
     return (
-        <ProfileContext.Provider value={{ user: user, profile: profile, setProfile, saveProfile }}>
+        <SessionContext.Provider value={{ db: db, user: user, profile: profile, setProfile, saveProfile }}>
             {children}
-        </ProfileContext.Provider>
+        </SessionContext.Provider>
     );
 }
 
-export { ProfileProvider, useProfile };
+export { SessionProvider, useSession };

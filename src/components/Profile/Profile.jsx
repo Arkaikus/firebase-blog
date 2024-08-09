@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from './ProfileProvider';
+import { useSession } from '../../providers/SessionProvider';
 
 function Profile() {
-    const { user, profile, setProfile, saveProfile } = useProfile();
+    const { user, profile, setProfile, saveProfile } = useSession();
     const [userEditable, setUserEditable] = useState(false);
     const navigate = useNavigate();
 
