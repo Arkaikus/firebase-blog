@@ -1,10 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore/lite';
+import { useSession } from '../../providers/SessionProvider';
 import PostRead from './PostRead';
 import PostList from './PostList';
 
-const ReadOnly = ({ db }) => {
+
+const ReadOnly = () => {
+    const { db } = useSession();
     const { username } = useParams(); // Retrieve the username from the path parameter
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -42,7 +45,7 @@ const ReadOnly = ({ db }) => {
     }
 
     return (
-        <div>
+        <div className="p-8">
             <div className="flex">
                 <div className="text-2xl">Posts by {username}</div>
                 {(/.+\/posts$/).test(location.pathname)

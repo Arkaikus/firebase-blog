@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaBook } from "react-icons/fa";
+import MDEditor from '@uiw/react-md-editor';
 
 function PostList({ username, posts }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -19,11 +21,14 @@ function PostList({ username, posts }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {filteredPosts.map((post) => (
-                <Link to={`/${username}/posts/${post.id}`} key={post.id}>
-                    <h3>{post.title}</h3>
-                </Link>
-            ))}
+            <div className="flex flex-col">
+                {filteredPosts.map((post) => (
+                    <Link className="flex my-2" to={`/${username}/posts/${post.id}`} key={post.id}>
+                        <FaBook className="text-2xl me-2" />
+                        <MDEditor.Markdown source={post.title} style={{ background: 'unset' }} />
+                    </Link>
+                ))}
+            </div>
         </>
     );
 }

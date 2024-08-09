@@ -1,3 +1,4 @@
+import MDEditor from '@uiw/react-md-editor';
 
 function PostTable({ posts, onEdit, onDelete }) {
     return (
@@ -9,8 +10,10 @@ function PostTable({ posts, onEdit, onDelete }) {
             <hr className="my-2" />
             {posts.map((post) => (
                 <div className="flex" key={post.id}>
-                    <div className="w-3/5 p-2 text-left">{post.title}</div>
-                    <div className="w-2/5 p-2 text-left">
+                    <div className="w-3/5 p-2 text-center">
+                        <MDEditor.Markdown source={post.title} style={{ background: 'unset' }} />
+                    </div>
+                    <div className="w-2/5 p-2 text-center">
                         <button onClick={() => onEdit(post)}>Edit</button>
                         <button onClick={() => onDelete(post)}>Delete</button>
                     </div>
