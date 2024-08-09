@@ -6,7 +6,7 @@ function PostTable({ posts, onEdit, onDelete }) {
                 <div className="w-3/5 p-2 text-2xl text-left">Title</div>
                 <div className="w-2/5 p-2 text-2xl text-left">Actions</div>
             </div>
-            <hr className="my-2"/>
+            <hr className="my-2" />
             {posts.map((post) => (
                 <div className="flex" key={post.id}>
                     <div className="w-3/5 p-2 text-left">{post.title}</div>

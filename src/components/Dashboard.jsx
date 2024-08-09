@@ -30,7 +30,7 @@ function Dashboard() {
     }
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full p-8">
             <Header />
             <hr className="my-5" />
             <Routes>

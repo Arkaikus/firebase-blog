@@ -5,7 +5,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore/lite';
 
 import { SessionProvider } from './providers/SessionProvider';
-import Login from './components/Login';
+import Landing from './components/Landing';
 import Dashboard from './components/Dashboard';
 import ReadOnly from './components/Posts/ReadOnly';
 import NotFound from './components/404';
@@ -47,8 +47,8 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
       </Router>

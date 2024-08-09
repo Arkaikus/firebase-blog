@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { setDoc, doc, getDoc } from "firebase/firestore/lite";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 const SessionContext = createContext();
 
@@ -29,6 +30,17 @@ async function getProfile(db, user) {
         };
         setDoc(docRef, profileData);
         return profileData;
+    }
+}
+
+
+export async function signIn() {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.log(error);
     }
 }
 
