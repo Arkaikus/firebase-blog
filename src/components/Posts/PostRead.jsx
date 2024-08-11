@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore/lite';
 import MDEditor from '@uiw/react-md-editor';
+import Loading from '../Loading';
 
 function PostRead({ db }) {
     const { postId } = useParams();
@@ -21,11 +22,7 @@ function PostRead({ db }) {
         });
     }, [db, postId, navigate]);
 
-    if (!post) {
-        return (
-            <div>Loading...</div>
-        );
-    }
+    if (!post) return <Loading />;
 
     return (
         <div>

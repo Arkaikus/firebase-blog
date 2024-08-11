@@ -4,6 +4,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore/lite';
 import { useSession } from '../../providers/SessionProvider';
 import PostRead from './PostRead';
 import PostList from './PostList';
+import Loading from '../Loading';
 
 
 const ReadOnly = () => {
@@ -40,10 +41,7 @@ const ReadOnly = () => {
         fetchPosts();
     }, [db, username, navigate]);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
+    if (loading) return <Loading />;
     return (
         <div className="p-8">
             <div className="flex">

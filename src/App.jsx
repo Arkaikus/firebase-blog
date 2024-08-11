@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { HashRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore/lite';
 
 import { SessionProvider } from './providers/SessionProvider';
@@ -9,6 +9,7 @@ import Landing from './components/Landing';
 import Dashboard from './components/Dashboard';
 import ReadOnly from './components/Posts/ReadOnly';
 import NotFound from './components/404';
+import Loading from './components/Loading';
 import './styles/App.css';
 
 // Initialize Firebase
@@ -30,17 +31,13 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
+  });
 
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <Loading />;
 
   if (!user) {
     return (

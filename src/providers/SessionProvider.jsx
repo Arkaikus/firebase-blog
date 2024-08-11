@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { setDoc, doc, getDoc } from "firebase/firestore/lite";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import Loading from '../components/Loading';
 
 const SessionContext = createContext();
 
@@ -61,7 +62,7 @@ function SessionProvider({ db, user, children }) {
         setDoc(docRef, profile);
     }
 
-    if (!profile.username) return <div>Loading...</div>;
+    if (!profile.username) return <Loading />;
 
     return (
         <SessionContext.Provider value={{ db: db, user: user, profile: profile, setProfile, saveProfile }}>
