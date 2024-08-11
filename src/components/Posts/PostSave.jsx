@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { SmallLoading, GreenLight, RedLight } from '../Loading';
 
-const ollamaUrl = "http://ollama.local/";
+const ollamaUrl = "https://ollama.local/";
 
 function prompt(url, text) {
     return fetch(url, {
